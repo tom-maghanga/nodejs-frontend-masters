@@ -3,6 +3,7 @@
 
 var path = require("path");
 var fs = require("fs");
+// var error = require("error");
 
 // printhelp();
 function printhelp(){
@@ -37,12 +38,12 @@ function argsError(msg, includeFile=false){
 
 function fileReader(filepath){
 
-    var contents = fs.readFileSync(filepath, function onContents(err, contents){
-        if(err){
-            error(err.toString());
-        }else{
+    var contents = fs.readFile(filepath, 'utf8', function(err, contents) {
+        
+        if (err) {
+            argsError(err.toString());
+        } else {
             process.stdout.write(contents);
         }
     });
-    process.stdout.write(contents);
 }
