@@ -36,6 +36,13 @@ function argsError(msg, includeFile=false){
 }
 
 function fileReader(filepath){
-    var contents = fs.readFileSync(filepath);
+
+    var contents = fs.readFileSync(filepath, function onContents(err, contents){
+        if(err){
+            error(err.toString());
+        }else{
+            process.stdout.write(contents);
+        }
+    });
     process.stdout.write(contents);
 }
