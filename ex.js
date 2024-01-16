@@ -2,7 +2,7 @@
 "use strict";
 import getStdin from 'get-stdin';
 import path from "path";
-import { promises as fs } from "fs";
+import { createReadStream, promises as fs } from "fs";
 // var error = require("error");
 
 // printhelp();
@@ -24,16 +24,13 @@ if(args.help){
     console.log("");
     printhelp();
 }else if(args.in || args._.includes('-')){
-    getStdin().then(fileReader).catch(argsError);
+    fileReader(process.stdin);
 }
 else if(args.file){
-    const filePath = path.resolve(args.file);
-    fs.readFile(filePath, 'utf-8')
-        .then(contents => fileReader(contents))
-        .catch(err => {
-            console.error("Error reading file:", err);
-            argsError(err.toString());
-        });
+
+    let stream = createReadStream(path.resolve(args.file));
+    fileReader(stream);
+    
 }else{
     argsError("Error !, Please review", true);
 }
@@ -46,12 +43,14 @@ function argsError(msg, includeFile=false){
     }
 }
 
-function fileReader(contents){
-    contents = contents.toString().toUpperCase();
-    process.stdout.write(contents)
+function fileReader(inStream){
+    var outStream = inStream;
+    var targetStream = process.stdout;
+    outStream.pipe(targetStream);
 
     
 }
+
 
 if(process.env.HELLO){
     console.log(process.env.HELLO);
