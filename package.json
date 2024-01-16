@@ -3,14 +3,15 @@
     "version": "1.0.0",
     "description": "Description of your project",
     "main": "ex.js",
+    "type": "module",
     "scripts": {
-      "start": "ex.js"
+        "start": "ex.js"
     },
     "dependencies": {
-      "minimist": "^1.2.5"
+        "get-stdin": "^9.0.0",
+        "minimist": "^1.2.5"
     },
     "engines": {
-      "node": ">=10.0.0"
+        "node": ">=10.0.0"
     }
-  }
-  
+}
