@@ -3,6 +3,7 @@
 import getStdin from 'get-stdin';
 import path from "path";
 import { createReadStream, promises as fs } from "fs";
+import { Transform } from 'stream';
 // var error = require("error");
 
 // printhelp();
@@ -45,6 +46,14 @@ function argsError(msg, includeFile=false){
 
 function fileReader(inStream){
     var outStream = inStream;
+    var upperStream = new Transform({
+        transform(chunk, enc, cb){
+            this.push(chunk.toString().toUpperCase());
+            cb();
+        }
+    })
+
+    outStream = outStream.pipe(upperStream);
     var targetStream = process.stdout;
     outStream.pipe(targetStream);
 
