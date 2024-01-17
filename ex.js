@@ -1,10 +1,12 @@
 #! usr/bin/env node
 "use strict";
 import getStdin from 'get-stdin';
-import path from "path";
+import path from "path"; 
+import { CAF } from 'caf';
 import  zlib, { gzip }  from 'zlib';
 import { createWriteStream, createReadStream, promises as fs } from "fs";
 import { Transform } from 'stream';
+
 // var error = require("error");
 
 // printhelp();
@@ -26,6 +28,8 @@ var args = minimist(process.argv.slice(2), {
     string : ['file']
 });
 
+
+
 function completeStream(stream) {
     return new Promise(function(resolve, reject) {
         stream.on("end", resolve);
@@ -33,18 +37,25 @@ function completeStream(stream) {
     });
 }
 
+fileReader = CAF(fileReader);
+
 
 var output = path.resolve('out.txt');
 if(args.help){
     console.log("");
     printhelp();
 }else if(args.in || args._.includes('-')){
-    fileReader(process.stdin);
+    let tooLong = CAF.timeout(3, "Took too long");
+
+    fileReader(tooLong, process.stdin);
 }
 else if(args.file){
+    
+    let tooLong = CAF.timeout(3, "Took too long");
 
     let stream = createReadStream(path.resolve(args.file));
-    fileReader(stream);
+    fileReader(tooLong, stream);
+    
     
 }else{
     argsError("Error !, Please review", true);
@@ -60,8 +71,9 @@ function argsError(msg, includeFile=false){
 
 
 
-async function fileReader(inStream){
-    
+
+function *fileReader(signal, inStream){
+  
     var outStream = inStream;
     if(args.uncompress){
         let gUnZipStream = zlib.createGunzip();
@@ -92,14 +104,17 @@ async function fileReader(inStream){
     }
     outStream.pipe(targetStream);
     
-    await completeStream(outStream);
+    yield completeStream(outStream);
 
     console.log("Complete !");
 
+    signal.pr.catch(function f(){
+        outStream.unpipe(targetStream);
+        outStream.destroy();
+    })
 
     
 }
-
 
 if(process.env.HELLO){
     console.log(process.env.HELLO);
