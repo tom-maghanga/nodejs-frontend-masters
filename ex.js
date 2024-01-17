@@ -25,6 +25,15 @@ var args = minimist(process.argv.slice(2), {
     boolean: ['help', 'in', 'out'],
     string : ['file']
 });
+
+function completeStream(stream) {
+    return new Promise(function(resolve, reject) {
+        stream.on("end", resolve);
+        stream.on("error", reject);
+    });
+}
+
+
 var output = path.resolve('out.txt');
 if(args.help){
     console.log("");
@@ -49,7 +58,9 @@ function argsError(msg, includeFile=false){
     }
 }
 
-function fileReader(inStream){
+
+
+async function fileReader(inStream){
     
     var outStream = inStream;
     if(args.uncompress){
@@ -80,6 +91,11 @@ function fileReader(inStream){
 
     }
     outStream.pipe(targetStream);
+    
+    await completeStream(outStream);
+
+    console.log("Complete !");
+
 
     
 }
