@@ -2,7 +2,7 @@
 "use strict";
 import getStdin from 'get-stdin';
 import path from "path";
-import { createReadStream, promises as fs } from "fs";
+import { createWriteStream, createReadStream, promises as fs } from "fs";
 import { Transform } from 'stream';
 // var error = require("error");
 
@@ -13,14 +13,16 @@ function printhelp(){
     console.log("  --help           Print this help");
     console.log("--file{FILENAME}   proccess this file");
     console.log("--in -             proccess stdin");
+    console.log("--out              process stdout");
 
 }
 
 import minimist from 'minimist';
 var args = minimist(process.argv.slice(2), {
-    boolean: ['help', 'in'],
+    boolean: ['help', 'in', 'out'],
     string : ['file']
 });
+var output = path.resolve('out.txt');
 if(args.help){
     console.log("");
     printhelp();
@@ -54,7 +56,14 @@ function fileReader(inStream){
     })
 
     outStream = outStream.pipe(upperStream);
-    var targetStream = process.stdout;
+    var targetStream;
+    if(args.out){
+        targetStream = process.stdout;
+
+    }else{
+        targetStream = createWriteStream(output);
+
+    }
     outStream.pipe(targetStream);
 
     
