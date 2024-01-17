@@ -2,7 +2,7 @@
 "use strict";
 import getStdin from 'get-stdin';
 import path from "path";
-import  zlib  from 'zlib';
+import  zlib, { gzip }  from 'zlib';
 import { createWriteStream, createReadStream, promises as fs } from "fs";
 import { Transform } from 'stream';
 // var error = require("error");
@@ -15,7 +15,8 @@ function printhelp(){
     console.log("--file{FILENAME}   proccess this file");
     console.log("--in -             proccess stdin");
     console.log("--out              process stdout");
-    console.log("--compress         compress")
+    console.log("--compress         gzip the output")
+    console.log("--uncompress       uncompress gzip input");
 
 }
 
@@ -49,7 +50,13 @@ function argsError(msg, includeFile=false){
 }
 
 function fileReader(inStream){
+    
     var outStream = inStream;
+    if(args.uncompress){
+        let gUnZipStream = zlib.createGunzip();
+        outStream = outStream.pipe(gUnZipStream);
+        
+    }
     var upperStream = new Transform({
         transform(chunk, enc, cb){
             this.push(chunk.toString().toUpperCase());
