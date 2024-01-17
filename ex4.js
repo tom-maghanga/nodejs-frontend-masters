@@ -77,6 +77,26 @@ async function main() {
 	error("Oops!");
 }
 
+
+async function getAllRecords(){
+	var result = await SQL3.all(
+		`
+		SELECT
+			Other.data AS 'other',
+			Something.data AS 'something'
+		FROM 
+			Something JOIN Other
+			ON  (Something.otherID  = Other.id)
+		ORDER BY
+			Other.id DESC, Something.data ASC
+		`
+	);
+
+	if(result && result.length > 0){
+		return result;
+	}
+}
+
 async function insertSomething(otherID, something){
 	let result = await SQL3.run(
 		`INSERT INTO 
