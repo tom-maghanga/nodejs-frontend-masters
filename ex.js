@@ -2,6 +2,7 @@
 "use strict";
 import getStdin from 'get-stdin';
 import path from "path";
+import  zlib  from 'zlib';
 import { createWriteStream, createReadStream, promises as fs } from "fs";
 import { Transform } from 'stream';
 // var error = require("error");
@@ -14,6 +15,7 @@ function printhelp(){
     console.log("--file{FILENAME}   proccess this file");
     console.log("--in -             proccess stdin");
     console.log("--out              process stdout");
+    console.log("--compress         compress")
 
 }
 
@@ -56,6 +58,12 @@ function fileReader(inStream){
     })
 
     outStream = outStream.pipe(upperStream);
+
+    if(args.compress){
+        let gZipStream  = zlib.createGzip();
+        outStream = outStream.pipe(gZipStream)
+        output = `${output}.gz`;
+    }
     var targetStream;
     if(args.out){
         targetStream = process.stdout;
